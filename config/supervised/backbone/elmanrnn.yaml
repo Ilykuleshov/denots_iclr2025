@@ -1,0 +1,6 @@
+_target_: src.nn.supervised.RNNBackbone
+_partial_: true
+hidden_dim: 32
+rnn_type: elman
+num_layers: 1
+bidirectional: false

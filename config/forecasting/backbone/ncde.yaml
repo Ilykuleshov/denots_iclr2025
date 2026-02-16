@@ -1,0 +1,2 @@
+_target_: src.nn.forecasting.TorchCDEBackbone
+hidden_dim: 32

@@ -1,0 +1,112 @@
+# This docker compose requires the following env variables:
+# (defined manually or in the .env file)
+# MLFLOW_PORT:
+#   the port of the resulting mlflow instance.
+# MLFLOW_VERSION
+#   the chosen version of mlflow (e.g. v3.8.1)
+# COMPOSE_PROJECT_NAME
+#   the name of the compose project, used to identify  
+#   networks and containers. Defaults to directory name if not given.
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: ${COMPOSE_PROJECT_NAME}-mlflow-postgres
+    environment:
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow
+      POSTGRES_DB: mlflow
+    volumes:
+      - .mlflow/runs_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mlflow -d mlflow"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: "unless-stopped"
+
+  minio:
+    image: minio/minio:latest
+    container_name: ${COMPOSE_PROJECT_NAME}-mlflow-minio
+    environment:
+      MINIO_ROOT_USER: mlflow
+      MINIO_ROOT_PASSWORD: mlflow123
+    volumes:
+      - .mlflow/artifacts_s3:/data
+    command: server /data --console-address ":9001" --address ":9000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: "unless-stopped"
+
+  create-bucket:
+    image: minio/mc:latest
+    container_name: ${COMPOSE_PROJECT_NAME}-mlflow-create-bucket
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        mc alias set myminio "http://minio:9000" \
+          "mlflow" "mlflow123"
+        mc mb --ignore-existing "myminio/mlflow-bucket"
+    restart: "no"
+
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:${MLFLOW_VERSION}
+    container_name: ${COMPOSE_PROJECT_NAME}-mlflow-server
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      create-bucket:
+        condition: service_completed_successfully
+    environment:
+      MLFLOW_BACKEND_STORE_URI: postgresql://mlflow:mlflow@postgres:5432/mlflow
+
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      MLFLOW_ARTIFACTS_DESTINATION: s3://mlflow-bucket/
+      AWS_ACCESS_KEY_ID: mlflow
+      AWS_SECRET_ACCESS_KEY: mlflow123
+      AWS_DEFAULT_REGION: us-east-1
+      MLFLOW_S3_IGNORE_TLS: "true"
+
+      # Server host/port
+      MLFLOW_HOST: 0.0.0.0
+      MLFLOW_PORT: ${MLFLOW_PORT}
+
+    command:
+      - /bin/bash
+      - -c
+      - |
+        pip install --no-cache-dir psycopg2-binary boto3
+        mlflow server \
+          --backend-store-uri "$${MLFLOW_BACKEND_STORE_URI}" \
+          --artifacts-destination "$${MLFLOW_ARTIFACTS_DESTINATION}" \
+          --serve-artifacts \
+          --host "0.0.0.0" \
+          --port "$${MLFLOW_PORT}" \
+          --allowed-hosts "*"
+    ports:
+      - "${MLFLOW_PORT}:${MLFLOW_PORT}"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:${MLFLOW_PORT}/health')",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: "unless-stopped"
+
+networks:
+  default:
+    name: ${COMPOSE_PROJECT_NAME}-mlflow-network

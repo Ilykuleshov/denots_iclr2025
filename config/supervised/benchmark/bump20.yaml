@@ -1,0 +1,6 @@
+# @package _global_
+encoder_dim: 1
+batches_per_epoch: 256
+balance: false
+datasource: bump20
+sequence_type: cts

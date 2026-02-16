@@ -1,0 +1,9 @@
+_target_: src.nn.forecasting.DeNOTS
+hidden_dim: 32
+forecast_method: last
+interp:
+  _target_: src.interp.natural_cubic.NaturalCubicSpline
+vf_type: adaptive
+nf: true
+tol: 1e-3
+depth: 5

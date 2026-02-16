@@ -1,0 +1,13 @@
+defaults:
+  - _self_
+  - backbone: denots
+  - benchmark: sepsis
+  - optional override: ${backbone}_${benchmark}
+
+batch_size: 128
+time_emb: diff
+seed: 0
+trainer_args:
+  max_epochs: -1
+lr: 1e-3
+experiment: ${datasource}

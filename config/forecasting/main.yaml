@@ -1,0 +1,12 @@
+defaults:
+ - backbone: tempformer
+ - benchmark: sine2
+
+batches_per_epoch: 256
+batch_size: 128
+seed: 0
+trainer_args:
+  max_epochs: 50
+
+lr: 1e-3
+experiment: ${datasource}

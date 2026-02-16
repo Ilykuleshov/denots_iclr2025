@@ -1,0 +1,6 @@
+# @package _global_
+encoder_dim: 1
+batches_per_epoch: 32
+balance: false
+datasource: uwgl
+sequence_type: cts

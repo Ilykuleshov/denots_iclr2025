@@ -1,0 +1,9 @@
+_target_: src.nn.supervised.DeNOTS
+_partial_: true
+hidden_dim: 32
+interp:
+  _target_: src.interp.natural_cubic.NaturalCubicSpline
+vf_type: adaptive
+nf: true
+tol: 1e-3
+depth: 30

@@ -1,0 +1,1 @@
+Due to a large number of input features, the GRU on the Sepsis dataset has more parameters than the Transformer-like architectures. To even out the picture, we increase the number of layers for Mamba, RoFormer and TempFormer.

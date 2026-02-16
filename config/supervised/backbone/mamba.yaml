@@ -1,0 +1,4 @@
+_target_: src.nn.supervised.MambaModel
+_partial_: true
+hidden_dim: 32
+n_layer: 1

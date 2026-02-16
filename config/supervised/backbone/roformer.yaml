@@ -1,0 +1,5 @@
+_target_: src.nn.supervised.RoFormer
+_partial_: True
+hidden_dim: 32
+nhead: 8
+num_layers: 1

@@ -1,0 +1,6 @@
+# @package _global_
+encoder_dim: 100
+batches_per_epoch: 256
+balance: true
+datasource: sepsis
+sequence_type: evs

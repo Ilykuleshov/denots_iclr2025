@@ -1,0 +1,18 @@
+#! /bin/bash
+source credentials 
+source .env
+
+docker run \
+	-d \
+	--shm-size=8g \
+	--memory=500g \
+	--cpus=16 \
+	--user ${DOCKER_USER_ID}:${DOCKER_GROUP_ID} \
+	--name ${CONTAINER_NAME} \
+	--rm -it --init \
+	--gpus all \
+	--mount type=bind,src=/home/${USER}/${SRC},dst=/app \
+	--net host \
+	--gpus all \
+	--env-file .env \
+	${DOCKER_NAME} bash

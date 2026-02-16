@@ -1,0 +1,6 @@
+_target_: src.nn.supervised.TorchCDEBackbone
+_partial_: true
+hidden_dim: 32
+logsig: true
+logsig_depth: 2
+logsig_chunks: 16
