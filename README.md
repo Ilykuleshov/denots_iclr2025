@@ -29,7 +29,9 @@ Our theoretical analysis considers all aspects of the proposed method; it includ
 ### Experiments
 Our main experiments show that increasing time scale reliably increases the prediction quality with our Anti-NF-based vector field.
 Below is an image, demonstrating precisely that on the synthetic Pendulum dataset:
+
 <img align="middle" width="500" src="assets/nfe_graphs_pendulum_demo.png">
+
 A more in-depth guide on how our repository is structured, and on how to reproduce our experiments can be found in [repository.md](repository.md).
 
 ### Citation
